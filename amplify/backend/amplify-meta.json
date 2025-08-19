@@ -1,0 +1,58 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-profilesapp-dev-a11be-authRole",
+      "UnauthRoleArn": "arn:aws:iam::926837946404:role/amplify-profilesapp-dev-a11be-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::926837946404:role/amplify-profilesapp-dev-a11be-authRole",
+      "Region": "eu-central-1",
+      "DeploymentBucketName": "amplify-profilesapp-dev-a11be-deployment",
+      "UnauthRoleName": "amplify-profilesapp-dev-a11be-unauthRole",
+      "StackName": "amplify-profilesapp-dev-a11be",
+      "StackId": "arn:aws:cloudformation:eu-central-1:926837946404:stack/amplify-profilesapp-dev-a11be/44408610-7ccb-11f0-8098-06df7d8fe02b",
+      "AmplifyAppId": "d1z4pchv7se5gg"
+    }
+  },
+  "auth": {
+    "profilesapp698d5e1c": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-profilesapp-dev-a11be-deployment/amplify-cfn-templates/auth/profilesapp698d5e1c-cloudformation-template.json",
+        "logicalId": "authprofilesapp698d5e1c"
+      },
+      "lastPushTimeStamp": "2025-08-19T10:21:24.584Z",
+      "output": {
+        "UserPoolId": "eu-central-1_CbLBAKAnx",
+        "AppClientIDWeb": "37dd5e91jp6qmi2bv7u84v9r1a",
+        "AppClientID": "7k1uaa7l9m10s2gjmvrhk624km",
+        "IdentityPoolId": "eu-central-1:d99bf54d-fe71-4646-8808-79f0315f5620",
+        "UserPoolArn": "arn:aws:cognito-idp:eu-central-1:926837946404:userpool/eu-central-1_CbLBAKAnx",
+        "IdentityPoolName": "profilesapp698d5e1c_identitypool_698d5e1c__dev",
+        "UserPoolName": "profilesapp698d5e1c_userpool_698d5e1c"
+      },
+      "lastPushDirHash": "jwOMiOnBHNI/EfO1P8f9fI+zbuk="
+    }
+  }
+}
