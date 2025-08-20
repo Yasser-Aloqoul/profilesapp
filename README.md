@@ -10,3 +10,14 @@ Currently, two official plugins are available:
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+
+
+
+
+GraphQL endpoint: https://jpoqynefi5blnccnukpmso6qla.appsync-api.eu-central-1.amazonaws.com/graphql
+GraphQL API KEY: da2-a2q7wgmopfb53dz7fzslh3eghq
+
+GraphQL transformer version: 2
+Hosted UI Endpoint: https://profilesapp67d44721-67d44721-dev.auth.eu-central-1.amazoncognito.com/
+Test Your Hosted UI Endpoint: https://profilesapp67d44721-67d44721-dev.auth.eu-central-1.amazoncognito.com/login?response_type=code&client_id=37dd5e91jp6qmi2bv7u84v9r1a&redirect_uri=http://localhost:3000/

@@ -1,0 +1,327 @@
+type Post @aws_cognito_user_pools @aws_api_key {
+  id: ID!
+  content: String!
+  userEmail: String!
+  createdAt: AWSDateTime!
+  likes: [String]
+  dislikes: [String]
+  comments(filter: ModelPostCommentFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelPostCommentConnection
+  updatedAt: AWSDateTime!
+  owner: String
+}
+
+type PostComment @aws_cognito_user_pools @aws_api_key {
+  id: ID!
+  postID: ID!
+  content: String!
+  userEmail: String!
+  createdAt: AWSDateTime!
+  post: Post
+  updatedAt: AWSDateTime!
+  owner: String
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  in: [String]
+  notIn: [String]
+}
+
+input ModelSubscriptionIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  in: [Int]
+  notIn: [Int]
+}
+
+input ModelSubscriptionFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  in: [Float]
+  notIn: [Float]
+}
+
+input ModelSubscriptionBooleanInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelSubscriptionIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  in: [ID]
+  notIn: [ID]
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelPostConnection @aws_api_key @aws_cognito_user_pools {
+  items: [Post]!
+  nextToken: String
+}
+
+input ModelPostFilterInput {
+  id: ModelIDInput
+  content: ModelStringInput
+  userEmail: ModelStringInput
+  createdAt: ModelStringInput
+  likes: ModelStringInput
+  dislikes: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelPostFilterInput]
+  or: [ModelPostFilterInput]
+  not: ModelPostFilterInput
+  owner: ModelStringInput
+}
+
+type Query {
+  getPost(id: ID!): Post @aws_api_key @aws_cognito_user_pools
+  listPosts(filter: ModelPostFilterInput, limit: Int, nextToken: String): ModelPostConnection @aws_api_key @aws_cognito_user_pools
+  getPostComment(id: ID!): PostComment @aws_api_key @aws_cognito_user_pools
+  listPostComments(filter: ModelPostCommentFilterInput, limit: Int, nextToken: String): ModelPostCommentConnection @aws_api_key @aws_cognito_user_pools
+  postCommentsByPostID(postID: ID!, sortDirection: ModelSortDirection, filter: ModelPostCommentFilterInput, limit: Int, nextToken: String): ModelPostCommentConnection @aws_api_key @aws_cognito_user_pools
+}
+
+input ModelPostConditionInput {
+  content: ModelStringInput
+  userEmail: ModelStringInput
+  createdAt: ModelStringInput
+  likes: ModelStringInput
+  dislikes: ModelStringInput
+  and: [ModelPostConditionInput]
+  or: [ModelPostConditionInput]
+  not: ModelPostConditionInput
+  updatedAt: ModelStringInput
+  owner: ModelStringInput
+}
+
+input CreatePostInput {
+  id: ID
+  content: String!
+  userEmail: String!
+  createdAt: AWSDateTime
+  likes: [String]
+  dislikes: [String]
+}
+
+input UpdatePostInput {
+  id: ID!
+  content: String
+  userEmail: String
+  createdAt: AWSDateTime
+  likes: [String]
+  dislikes: [String]
+}
+
+input DeletePostInput {
+  id: ID!
+}
+
+type Mutation {
+  createPost(input: CreatePostInput!, condition: ModelPostConditionInput): Post @aws_cognito_user_pools
+  updatePost(input: UpdatePostInput!, condition: ModelPostConditionInput): Post @aws_cognito_user_pools
+  deletePost(input: DeletePostInput!, condition: ModelPostConditionInput): Post @aws_cognito_user_pools
+  createPostComment(input: CreatePostCommentInput!, condition: ModelPostCommentConditionInput): PostComment @aws_cognito_user_pools
+  updatePostComment(input: UpdatePostCommentInput!, condition: ModelPostCommentConditionInput): PostComment @aws_cognito_user_pools
+  deletePostComment(input: DeletePostCommentInput!, condition: ModelPostCommentConditionInput): PostComment @aws_cognito_user_pools
+}
+
+input ModelSubscriptionPostFilterInput {
+  id: ModelSubscriptionIDInput
+  content: ModelSubscriptionStringInput
+  userEmail: ModelSubscriptionStringInput
+  createdAt: ModelSubscriptionStringInput
+  likes: ModelSubscriptionStringInput
+  dislikes: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionPostFilterInput]
+  or: [ModelSubscriptionPostFilterInput]
+  owner: ModelStringInput
+}
+
+type Subscription {
+  onCreatePost(filter: ModelSubscriptionPostFilterInput, owner: String): Post @aws_subscribe(mutations: ["createPost"]) @aws_api_key @aws_cognito_user_pools
+  onUpdatePost(filter: ModelSubscriptionPostFilterInput, owner: String): Post @aws_subscribe(mutations: ["updatePost"]) @aws_api_key @aws_cognito_user_pools
+  onDeletePost(filter: ModelSubscriptionPostFilterInput, owner: String): Post @aws_subscribe(mutations: ["deletePost"]) @aws_api_key @aws_cognito_user_pools
+  onCreatePostComment(filter: ModelSubscriptionPostCommentFilterInput, owner: String): PostComment @aws_subscribe(mutations: ["createPostComment"]) @aws_api_key @aws_cognito_user_pools
+  onUpdatePostComment(filter: ModelSubscriptionPostCommentFilterInput, owner: String): PostComment @aws_subscribe(mutations: ["updatePostComment"]) @aws_api_key @aws_cognito_user_pools
+  onDeletePostComment(filter: ModelSubscriptionPostCommentFilterInput, owner: String): PostComment @aws_subscribe(mutations: ["deletePostComment"]) @aws_api_key @aws_cognito_user_pools
+}
+
+type ModelPostCommentConnection @aws_cognito_user_pools @aws_api_key {
+  items: [PostComment]!
+  nextToken: String
+}
+
+input ModelPostCommentFilterInput {
+  id: ModelIDInput
+  postID: ModelIDInput
+  content: ModelStringInput
+  userEmail: ModelStringInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelPostCommentFilterInput]
+  or: [ModelPostCommentFilterInput]
+  not: ModelPostCommentFilterInput
+  owner: ModelStringInput
+}
+
+input ModelPostCommentConditionInput {
+  postID: ModelIDInput
+  content: ModelStringInput
+  userEmail: ModelStringInput
+  createdAt: ModelStringInput
+  and: [ModelPostCommentConditionInput]
+  or: [ModelPostCommentConditionInput]
+  not: ModelPostCommentConditionInput
+  updatedAt: ModelStringInput
+  owner: ModelStringInput
+}
+
+input CreatePostCommentInput {
+  id: ID
+  postID: ID!
+  content: String!
+  userEmail: String!
+  createdAt: AWSDateTime
+}
+
+input UpdatePostCommentInput {
+  id: ID!
+  postID: ID
+  content: String
+  userEmail: String
+  createdAt: AWSDateTime
+}
+
+input DeletePostCommentInput {
+  id: ID!
+}
+
+input ModelSubscriptionPostCommentFilterInput {
+  id: ModelSubscriptionIDInput
+  postID: ModelSubscriptionIDInput
+  content: ModelSubscriptionStringInput
+  userEmail: ModelSubscriptionStringInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionPostCommentFilterInput]
+  or: [ModelSubscriptionPostCommentFilterInput]
+  owner: ModelStringInput
+}

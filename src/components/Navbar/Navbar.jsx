@@ -1,5 +1,4 @@
-import React from "react";
-import { Flex, Button, Heading, useAuthenticator } from "@aws-amplify/ui-react";
+import { Button, Flex, Heading, useAuthenticator } from "@aws-amplify/ui-react";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {

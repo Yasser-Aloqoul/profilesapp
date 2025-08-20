@@ -1,0 +1,25 @@
+type User @model {
+  id: ID!
+  email: String!
+  name: String!
+  posts: [Post] @hasMany
+}
+
+type Post @model {
+  id: ID!
+  content: String!
+  userId: ID!
+  user: User @belongsTo
+  comments: [Comment] @hasMany
+  likeCount: Int!
+  dislikeCount: Int!
+  createdAt: AWSDateTime!
+}
+
+type Comment @model {
+  id: ID!
+  postId: ID!
+  userId: ID!
+  content: String!
+  createdAt: AWSDateTime!
+}

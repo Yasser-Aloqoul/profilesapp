@@ -1,4 +1,22 @@
 {
+  "api": {
+    "profilesapp": {
+      "dependsOn": [],
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 7
+            },
+            "authenticationType": "API_KEY"
+          }
+        }
+      },
+      "providerPlugin": "awsbase",
+      "service": "AppSync"
+    }
+  },
   "auth": {
     "profilesapp698d5e1c": {
       "customAuth": false,

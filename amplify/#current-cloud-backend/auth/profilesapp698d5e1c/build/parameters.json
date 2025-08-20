@@ -34,7 +34,7 @@
   "sharedId": "698d5e1c",
   "resourceName": "profilesapp698d5e1c",
   "authSelections": "identityPoolAndUserPool",
-  "useDefault": "default",
+  "useDefault": "defaultSocial",
   "usernameAttributes": [
     "email"
   ],
@@ -55,5 +55,11 @@
     ]
   },
   "breakCircularDependency": true,
-  "dependsOn": []
+  "dependsOn": [],
+  "hostedUI": true,
+  "hostedUIDomainName": "profilesapp67d44721-67d44721",
+  "authProvidersUserPool": [],
+  "hostedUIProviderMeta": "[]",
+  "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:3000/\",\"http://localhost:5175/\",\"http://localhost:5174/\"],\"LogoutURLs\":[\"http://localhost:3000/\",\"http://localhost:5174/\",\"http://localhost:5175/\"]}",
+  "authProviders": []
 }

@@ -229,7 +229,7 @@
           "sharedId": "698d5e1c",
           "resourceName": "profilesapp698d5e1c",
           "authSelections": "identityPoolAndUserPool",
-          "useDefault": "default",
+          "useDefault": "defaultSocial",
           "usernameAttributes": "email",
           "userPoolGroupList": "",
           "serviceName": "Cognito",
@@ -249,6 +249,33 @@
           },
           "breakCircularDependency": true,
           "dependsOn": "",
+          "hostedUI": true,
+          "hostedUIDomainName": "profilesapp67d44721-67d44721",
+          "authProvidersUserPool": "",
+          "hostedUIProviderMeta": "[]",
+          "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:3000/\",\"http://localhost:5175/\",\"http://localhost:5174/\"],\"LogoutURLs\":[\"http://localhost:3000/\",\"http://localhost:5174/\",\"http://localhost:5175/\"]}",
+          "authProviders": "",
+          "hostedUIProviderCreds": "[]",
+          "env": "dev"
+        }
+      }
+    },
+    "apiprofilesapp": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/amplify-profilesapp-dev-a11be-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+        "Parameters": {
+          "AppSyncApiName": "profilesapp",
+          "DynamoDBBillingMode": "PAY_PER_REQUEST",
+          "DynamoDBEnableServerSideEncryption": false,
+          "AuthCognitoUserPoolId": {
+            "Fn::GetAtt": [
+              "authprofilesapp698d5e1c",
+              "Outputs.UserPoolId"
+            ]
+          },
+          "S3DeploymentBucket": "amplify-profilesapp-dev-a11be-deployment",
+          "S3DeploymentRootKey": "amplify-appsync-files/63a5b51844e27a90622bc6bcba6db7ce3ad81ccf",
           "env": "dev"
         }
       }

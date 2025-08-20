@@ -7,7 +7,20 @@ const awsmobile = {
     "aws_cognito_region": "eu-central-1",
     "aws_user_pools_id": "eu-central-1_CbLBAKAnx",
     "aws_user_pools_web_client_id": "37dd5e91jp6qmi2bv7u84v9r1a",
-    "oauth": {},
+    "oauth": {
+        "domain": "profilesapp67d44721-67d44721-dev.auth.eu-central-1.amazoncognito.com",
+        "scope": [
+            "phone",
+            "email",
+            "openid",
+            "profile",
+            "aws.cognito.signin.user.admin"
+        ],
+        "redirectSignIn": "http://localhost:3000/,http://localhost:5175/,http://localhost:5174/",
+        "redirectSignOut": "http://localhost:3000/,http://localhost:5174/,http://localhost:5175/",
+        "responseType": "code"
+    },
+    "federationTarget": "COGNITO_USER_POOLS",
     "aws_cognito_username_attributes": [
         "EMAIL"
     ],
@@ -25,7 +38,11 @@ const awsmobile = {
     },
     "aws_cognito_verification_mechanisms": [
         "EMAIL"
-    ]
+    ],
+    "aws_appsync_graphqlEndpoint": "https://jpoqynefi5blnccnukpmso6qla.appsync-api.eu-central-1.amazonaws.com/graphql",
+    "aws_appsync_region": "eu-central-1",
+    "aws_appsync_authenticationType": "API_KEY",
+    "aws_appsync_apiKey": "da2-a2q7wgmopfb53dz7fzslh3eghq"
 };
 
 
