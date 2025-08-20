@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import CreatePost from "./components/CreatePost/CreatePost";
 import Dashboard from "./components/Dashboard/Dashboard";
+import UserProfile from "./components/UserProfile/UserProfile";
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/api';
 import { withAuthenticator, Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 import awsconfig from "./aws-exports";
 import "@aws-amplify/ui-react/styles.css";
 import Login from "./components/Login/Login";
+import { createPost } from "./graphql/mutations";
 
 Amplify.configure({
   ...awsconfig,
@@ -115,6 +117,14 @@ function App() {
             element={
               <RequireAuth>
                 <CreatePost addPost={addPost} />
+              </RequireAuth>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <RequireAuth>
+                <UserProfile />
               </RequireAuth>
             } 
           />

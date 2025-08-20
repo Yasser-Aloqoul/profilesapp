@@ -44,5 +44,40 @@
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
     }
+  },
+  "function": {
+    "profilesapp91b0f300": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput"
+          ],
+          "category": "api",
+          "resourceName": "profilesapp"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_profilesapp91b0f300_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "profilesapp91b0f300"
+        }
+      ]
+    },
+    "AMPLIFY_function_profilesapp91b0f300_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "profilesapp91b0f300"
+        }
+      ]
+    }
   }
 }

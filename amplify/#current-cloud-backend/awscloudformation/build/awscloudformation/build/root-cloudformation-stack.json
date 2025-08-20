@@ -280,6 +280,29 @@
         }
       }
     },
+    "functionprofilesapp91b0f300": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": "https://s3.amazonaws.com/amplify-profilesapp-dev-a11be-deployment/amplify-cfn-templates/function/profilesapp91b0f300-cloudformation-template.json",
+        "Parameters": {
+          "deploymentBucketName": "amplify-profilesapp-dev-a11be-deployment",
+          "s3Key": "amplify-builds/profilesapp91b0f300-506c764775376d42586d-build.zip",
+          "apiprofilesappGraphQLAPIIdOutput": {
+            "Fn::GetAtt": [
+              "apiprofilesapp",
+              "Outputs.GraphQLAPIIdOutput"
+            ]
+          },
+          "apiprofilesappGraphQLAPIEndpointOutput": {
+            "Fn::GetAtt": [
+              "apiprofilesapp",
+              "Outputs.GraphQLAPIEndpointOutput"
+            ]
+          },
+          "env": "dev"
+        }
+      }
+    },
     "UpdateRolesWithIDPFunction": {
       "DependsOn": [
         "AuthRole",

@@ -111,7 +111,7 @@
               {
                 "Ref": "referencetotransformerrootstackPostCommentNestedStackPostCommentNestedStackResource77173766OutputstransformerrootstackPostCommentPostCommentTable9A00DD62Ref"
               },
-              "\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-central-1:d99bf54d-fe71-4646-8808-79f0315f5620\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+              "\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-central-1:d99bf54d-fe71-4646-8808-79f0315f5620\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"profilesapp91b0f300-dev\"]))\n$util.toJson({})"
             ]
           ]
         },
@@ -200,7 +200,7 @@
               {
                 "Ref": "referencetotransformerrootstackPostNestedStackPostNestedStackResource45FCAC5EOutputstransformerrootstackPostPostTable34CAE87BRef"
               },
-              "\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-central-1:d99bf54d-fe71-4646-8808-79f0315f5620\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+              "\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"eu-central-1:d99bf54d-fe71-4646-8808-79f0315f5620\"))\n$util.qr($ctx.stash.put(\"adminRoles\", [\"profilesapp91b0f300-dev\"]))\n$util.toJson({})"
             ]
           ]
         },
