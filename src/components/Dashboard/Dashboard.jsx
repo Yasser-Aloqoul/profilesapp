@@ -94,11 +94,25 @@ const Dashboard = () => {
         next: ({ data }) => {
           const newComment = data.onCreatePostComment;
           setPosts((prevPosts) =>
-            prevPosts.map((p) =>
-              p.id === newComment.postID
-                ? { ...p, comments: [newComment, ...p.comments] }
-                : p
-            )
+            prevPosts.map((p) => {
+              // Only add the comment if it doesn't already exist in the array
+              if (p.id === newComment.postID) {
+                // Check if we already have this comment (or one very similar) 
+                const commentExists = p.comments.some(c => 
+                  // Check if IDs match or content and timestamp are very close
+                  c.id === newComment.id || 
+                  (c.content === newComment.content && 
+                   c.userEmail === newComment.userEmail &&
+                   Math.abs(new Date(c.createdAt) - new Date(newComment.createdAt)) < 5000) // Within 5 seconds
+                );
+                
+                // Only add if it doesn't exist
+                return commentExists 
+                  ? p 
+                  : { ...p, comments: [newComment, ...p.comments] };
+              }
+              return p;
+            })
           );
         },
       });
