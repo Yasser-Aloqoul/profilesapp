@@ -1,11 +1,12 @@
-# Configure a global authorization rule
+# تكوين قاعدة عامة
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } }
 
 type Post
   @model
   @auth(rules: [
-    { allow: owner }                       # المالك (صاحب البوست) يقدر يعمل CRUD
-    { allow: public, operations: [read] }  # أي أحد يقدر يقرأ
+    { allow: owner, operations: [create, update, delete, read] },
+    { allow: private, operations: [read, update] } # Added update permission for signed-in users
+    { allow: public, operations: [read] }
   ]) {
   id: ID!
   content: String!
@@ -16,17 +17,17 @@ type Post
   dislikes: [String]          # إيميلات اللي عملوا dislike
   comments: [PostComment] @hasMany(indexName: "byPost", fields: ["id"])
 }
-
 type PostComment
   @model
   @auth(rules: [
-    { allow: owner }                       # المالك يقدر يعدل/يحذف
-    { allow: public, operations: [read] }  # أي أحد يقدر يقرأ
+    { allow: owner, operations: [update, delete, read] }, # المالك يتحكم بالكومنت حقه
+    { allow: private, operations: [create, read] },       # أي مستخدم مسجّل دخول يقدر يعمل كومنت ويقرأ
+    { allow: public, operations: [read] }                 # الزوار يقرأوا فقط
   ]) {
   id: ID!
-  postID: ID! @index(name: "byPost")       # مفتاح خارجي يربط الكومنت بالبوست
+  postID: ID! @index(name: "byPost")
   content: String!
-  userEmail: String!                       # إيميل صاحب الكومنت
+  userEmail: String!
   createdAt: AWSDateTime!
   post: Post @belongsTo(fields: ["postID"])
 }

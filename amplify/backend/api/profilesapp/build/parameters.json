@@ -9,5 +9,5 @@
         ]
     },
     "S3DeploymentBucket": "amplify-profilesapp-dev-a11be-deployment",
-    "S3DeploymentRootKey": "amplify-appsync-files/63a5b51844e27a90622bc6bcba6db7ce3ad81ccf"
+    "S3DeploymentRootKey": "amplify-appsync-files/d64485f3dab56d13f34beca81d562a0fe635b225"
 }

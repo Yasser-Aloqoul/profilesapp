@@ -10,6 +10,7 @@ export const onCreatePost = /* GraphQL */ `
       id
       content
       userEmail
+      owner
       createdAt
       likes
       dislikes
@@ -18,7 +19,6 @@ export const onCreatePost = /* GraphQL */ `
         __typename
       }
       updatedAt
-      owner
       __typename
     }
   }
@@ -32,6 +32,7 @@ export const onUpdatePost = /* GraphQL */ `
       id
       content
       userEmail
+      owner
       createdAt
       likes
       dislikes
@@ -40,7 +41,6 @@ export const onUpdatePost = /* GraphQL */ `
         __typename
       }
       updatedAt
-      owner
       __typename
     }
   }
@@ -54,6 +54,7 @@ export const onDeletePost = /* GraphQL */ `
       id
       content
       userEmail
+      owner
       createdAt
       likes
       dislikes
@@ -62,7 +63,6 @@ export const onDeletePost = /* GraphQL */ `
         __typename
       }
       updatedAt
-      owner
       __typename
     }
   }
@@ -82,11 +82,11 @@ export const onCreatePostComment = /* GraphQL */ `
         id
         content
         userEmail
+        owner
         createdAt
         likes
         dislikes
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -110,11 +110,11 @@ export const onUpdatePostComment = /* GraphQL */ `
         id
         content
         userEmail
+        owner
         createdAt
         likes
         dislikes
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -138,11 +138,11 @@ export const onDeletePostComment = /* GraphQL */ `
         id
         content
         userEmail
+        owner
         createdAt
         likes
         dislikes
         updatedAt
-        owner
         __typename
       }
       updatedAt

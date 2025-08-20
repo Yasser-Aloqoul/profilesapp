@@ -10,6 +10,7 @@ export const createPost = /* GraphQL */ `
       id
       content
       userEmail
+      owner
       createdAt
       likes
       dislikes
@@ -18,7 +19,6 @@ export const createPost = /* GraphQL */ `
         __typename
       }
       updatedAt
-      owner
       __typename
     }
   }
@@ -32,6 +32,7 @@ export const updatePost = /* GraphQL */ `
       id
       content
       userEmail
+      owner
       createdAt
       likes
       dislikes
@@ -40,7 +41,6 @@ export const updatePost = /* GraphQL */ `
         __typename
       }
       updatedAt
-      owner
       __typename
     }
   }
@@ -54,6 +54,7 @@ export const deletePost = /* GraphQL */ `
       id
       content
       userEmail
+      owner
       createdAt
       likes
       dislikes
@@ -62,7 +63,6 @@ export const deletePost = /* GraphQL */ `
         __typename
       }
       updatedAt
-      owner
       __typename
     }
   }
@@ -82,11 +82,11 @@ export const createPostComment = /* GraphQL */ `
         id
         content
         userEmail
+        owner
         createdAt
         likes
         dislikes
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -110,11 +110,11 @@ export const updatePostComment = /* GraphQL */ `
         id
         content
         userEmail
+        owner
         createdAt
         likes
         dislikes
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -138,27 +138,16 @@ export const deletePostComment = /* GraphQL */ `
         id
         content
         userEmail
+        owner
         createdAt
         likes
         dislikes
         updatedAt
-        owner
         __typename
       }
       updatedAt
       owner
       __typename
-    }
-  }
-`;
-export const createComment = /* GraphQL */ `
-  mutation CreateComment($input: CreatePostCommentInput!) {
-    createPostComment(input: $input) {
-      id
-      postID
-      content
-      userEmail
-      createdAt
     }
   }
 `;

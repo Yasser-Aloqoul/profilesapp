@@ -7,6 +7,7 @@ export const getPost = /* GraphQL */ `
       id
       content
       userEmail
+      owner
       createdAt
       likes
       dislikes
@@ -15,14 +16,17 @@ export const getPost = /* GraphQL */ `
         __typename
       }
       updatedAt
-      owner
       __typename
     }
   }
 `;
 export const listPosts = /* GraphQL */ `
-  query ListPosts($limit: Int, $nextToken: String) {
-    listPosts(limit: $limit, nextToken: $nextToken) {
+  query ListPosts(
+    $filter: ModelPostFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
         content
@@ -31,16 +35,11 @@ export const listPosts = /* GraphQL */ `
         createdAt
         likes
         dislikes
-        comments {
-          items {
-            id
-            content
-            userEmail
-            createdAt
-          }
-        }
+        updatedAt
+        __typename
       }
       nextToken
+      __typename
     }
   }
 `;
@@ -56,11 +55,11 @@ export const getPostComment = /* GraphQL */ `
         id
         content
         userEmail
+        owner
         createdAt
         likes
         dislikes
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -121,4 +120,3 @@ export const postCommentsByPostID = /* GraphQL */ `
     }
   }
 `;
-  

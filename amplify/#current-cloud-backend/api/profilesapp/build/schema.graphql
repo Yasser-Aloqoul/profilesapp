@@ -2,12 +2,12 @@ type Post @aws_cognito_user_pools @aws_api_key {
   id: ID!
   content: String!
   userEmail: String!
+  owner: String
   createdAt: AWSDateTime!
   likes: [String]
   dislikes: [String]
   comments(filter: ModelPostCommentFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelPostCommentConnection
   updatedAt: AWSDateTime!
-  owner: String
 }
 
 type PostComment @aws_cognito_user_pools @aws_api_key {
@@ -180,6 +180,7 @@ input ModelPostFilterInput {
   id: ModelIDInput
   content: ModelStringInput
   userEmail: ModelStringInput
+  owner: ModelStringInput
   createdAt: ModelStringInput
   likes: ModelStringInput
   dislikes: ModelStringInput
@@ -187,7 +188,6 @@ input ModelPostFilterInput {
   and: [ModelPostFilterInput]
   or: [ModelPostFilterInput]
   not: ModelPostFilterInput
-  owner: ModelStringInput
 }
 
 type Query {
@@ -201,6 +201,7 @@ type Query {
 input ModelPostConditionInput {
   content: ModelStringInput
   userEmail: ModelStringInput
+  owner: ModelStringInput
   createdAt: ModelStringInput
   likes: ModelStringInput
   dislikes: ModelStringInput
@@ -208,13 +209,13 @@ input ModelPostConditionInput {
   or: [ModelPostConditionInput]
   not: ModelPostConditionInput
   updatedAt: ModelStringInput
-  owner: ModelStringInput
 }
 
 input CreatePostInput {
   id: ID
   content: String!
   userEmail: String!
+  owner: String
   createdAt: AWSDateTime
   likes: [String]
   dislikes: [String]
@@ -224,6 +225,7 @@ input UpdatePostInput {
   id: ID!
   content: String
   userEmail: String
+  owner: String
   createdAt: AWSDateTime
   likes: [String]
   dislikes: [String]

@@ -275,18 +275,7 @@
             ]
           },
           "S3DeploymentBucket": "amplify-profilesapp-dev-a11be-deployment",
-          "S3DeploymentRootKey": "amplify-appsync-files/e567668a5df35354d5f4a15ebd2d46cbffd74ea8",
-          "env": "dev"
-        }
-      }
-    },
-    "functionprofilesapp131f15d7": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "TemplateURL": "https://s3.amazonaws.com/amplify-profilesapp-dev-a11be-deployment/amplify-cfn-templates/function/profilesapp131f15d7-cloudformation-template.json",
-        "Parameters": {
-          "deploymentBucketName": "amplify-profilesapp-dev-a11be-deployment",
-          "s3Key": "amplify-builds/profilesapp131f15d7-2f754c4456434161354a-build.zip",
+          "S3DeploymentRootKey": "amplify-appsync-files/d64485f3dab56d13f34beca81d562a0fe635b225",
           "env": "dev"
         }
       }
