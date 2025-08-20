@@ -18,15 +18,18 @@ import {
   Badge,
   Spacer
 } from "@chakra-ui/react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
-  const { signOut, user } = useAuthenticator((context) => [context.user]);
   const navigate = useNavigate();
   const location = useLocation();
   const { colorMode, toggleColorMode } = useColorMode();
-  const userEmail = user?.signInDetails?.loginId || user?.attributes?.email || "User";
+  const userEmail = "currentuser@example.com"; // Mock current user
+  
+  const handleSignOut = () => {
+    // Simple redirect to login for now
+    navigate("/login");
+  };
   
   // Color scheme
   const bgColor = useColorModeValue("white", "gray.800");
@@ -220,7 +223,7 @@ const Navbar = () => {
               <MenuDivider />
               
               <MenuItem 
-                onClick={signOut}
+                onClick={handleSignOut}
                 color="red.500"
                 _hover={{ bg: useColorModeValue("red.50", "red.900"), color: "red.600" }}
                 fontWeight="medium"

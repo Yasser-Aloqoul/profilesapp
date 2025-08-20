@@ -18,22 +18,25 @@ import {
   AlertTitle,
   AlertDescription,
 } from "@chakra-ui/react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
-import { generateClient } from "aws-amplify/api";
-import { listPosts } from "../../graphql/queries";
-import { updatePost, deletePost } from "../../graphql/mutations";
 import Navbar from "../Navbar/Navbar";
 
 const UserProfile = () => {
-  const client = generateClient();
-  const [userPosts, setUserPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [userPosts, setUserPosts] = useState([
+    {
+      id: "user1",
+      content: "This is my personal post on my profile. Only I can see and edit this!",
+      userEmail: "currentuser@example.com",
+      createdAt: new Date().toISOString(),
+      likes: ["friend1@example.com", "friend2@example.com"],
+      dislikes: [],
+    }
+  ]);
+  const [loading, setLoading] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingPost, setDeletingPost] = useState(null);
-  const { user } = useAuthenticator((context) => [context.user]);
-  const userEmail = user?.signInDetails?.loginId || user?.attributes?.email;
+  const userEmail = "currentuser@example.com"; // Mock current user
 
   // Color scheme for dark mode
   const bgColor = useColorModeValue("gray.50", "gray.900");
@@ -44,47 +47,14 @@ const UserProfile = () => {
 
   // Fetch user's posts
   useEffect(() => {
-    if (userEmail) {
-      fetchUserPosts();
-    }
-  }, [userEmail]);
+    // Posts are already initialized with sample data
+    setLoading(false);
+  }, []);
 
-  const fetchUserPosts = async () => {
-    try {
-      setLoading(true);
-      console.log("Fetching posts for user:", userEmail);
-      
-      const response = await client.graphql({
-        query: listPosts,
-        authMode: "userPool",
-        variables: { limit: 100 },
-      });
-
-      console.log("GraphQL response:", response);
-
-      if (response.data?.listPosts?.items) {
-        // Filter posts to show only current user's posts
-        const myPosts = response.data.listPosts.items
-          .filter((post) => post !== null && post.userEmail === userEmail)
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .map((post) => ({
-            ...post,
-            likes: post.likes || [],
-            dislikes: post.dislikes || [],
-          }));
-        
-        console.log("Filtered user posts:", myPosts);
-        setUserPosts(myPosts);
-      } else {
-        console.log("No posts found in response");
-        setUserPosts([]);
-      }
-    } catch (error) {
-      console.error("Error fetching user posts:", error);
-      setUserPosts([]);
-    } finally {
-      setLoading(false);
-    }
+  const fetchUserPosts = () => {
+    // Just refresh the current posts
+    setLoading(true);
+    setTimeout(() => setLoading(false), 500);
   };
 
   // Handle edit post
@@ -94,37 +64,20 @@ const UserProfile = () => {
   };
 
   // Save edited post
-  const saveEditedPost = async () => {
+  const saveEditedPost = () => {
     if (!editContent.trim() || !editingPost) return;
 
-    try {
-      const response = await client.graphql({
-        query: updatePost,
-        variables: {
-          input: {
-            id: editingPost.id,
-            content: editContent.trim(),
-          },
-        },
-        authMode: "userPool",
-      });
+    // Update local state
+    setUserPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === editingPost.id
+          ? { ...post, content: editContent.trim() }
+          : post
+      )
+    );
 
-      // Update local state
-      setUserPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === editingPost.id
-            ? { ...post, content: editContent.trim() }
-            : post
-        )
-      );
-
-      setShowDeleteConfirm(false);
-      setEditingPost(null);
-      setEditContent("");
-    } catch (error) {
-      console.error("Error updating post:", error);
-      alert("Failed to update post. Please try again.");
-    }
+    setEditingPost(null);
+    setEditContent("");
   };
 
   // Handle delete post
@@ -134,31 +87,16 @@ const UserProfile = () => {
   };
 
   // Confirm delete post
-  const confirmDeletePost = async () => {
+  const confirmDeletePost = () => {
     if (!deletingPost) return;
 
-    try {
-      await client.graphql({
-        query: deletePost,
-        variables: {
-          input: {
-            id: deletingPost.id,
-          },
-        },
-        authMode: "userPool",
-      });
+    // Remove from local state
+    setUserPosts((prevPosts) =>
+      prevPosts.filter((post) => post.id !== deletingPost.id)
+    );
 
-      // Remove from local state
-      setUserPosts((prevPosts) =>
-        prevPosts.filter((post) => post.id !== deletingPost.id)
-      );
-
-      setShowDeleteConfirm(false);
-      setDeletingPost(null);
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      alert("Failed to delete post. Please try again.");
-    }
+    setShowDeleteConfirm(false);
+    setDeletingPost(null);
   };
 
   const cancelEdit = () => {

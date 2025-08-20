@@ -26,31 +26,31 @@ import {
   Grid,
   GridItem,
 } from "@chakra-ui/react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
-import { generateClient } from "aws-amplify/api";
-import {
-  listPosts,
-  postCommentsByPostID,
-} from "../../graphql/queries";
-import {
-  updatePost,
-  createPostComment,
-} from "../../graphql/mutations";
-import {
-  onCreatePostComment,
-  onCreatePost,
-  onUpdatePost,
-} from "../../graphql/subscriptions";
 import Navbar from "../Navbar/Navbar";
 
 const Dashboard = () => {
-  const client = generateClient();
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([
+    {
+      id: "1",
+      content: "Welcome to our social platform! This is a sample post to show how the interface works.",
+      userEmail: "demo@example.com",
+      createdAt: new Date().toISOString(),
+      likes: ["user1@example.com", "user2@example.com"],
+      dislikes: [],
+      comments: [
+        {
+          id: "c1",
+          content: "Great platform! Looking forward to using it.",
+          userEmail: "user1@example.com",
+          createdAt: new Date(Date.now() - 60000).toISOString()
+        }
+      ]
+    }
+  ]);
   const [commentText, setCommentText] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [expandedComments, setExpandedComments] = useState({});
-  const { user } = useAuthenticator((context) => [context.user]);
-  const userEmail = user.signInDetails?.loginId || user.attributes?.email;
+  const userEmail = "currentuser@example.com"; // Mock current user
 
   // Color scheme for dark mode - improved text visibility
   const bgColor = useColorModeValue("gray.50", "gray.900");
@@ -71,57 +71,14 @@ const Dashboard = () => {
 
   // Fetch all posts initially
   useEffect(() => {
-    fetchPosts();
+    // Posts are already initialized with sample data
+    setLoading(false);
   }, []);
 
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      const response = await client.graphql({
-        query: listPosts,
-        authMode: "userPool",
-        variables: { limit: 100 },
-      });
-
-      if (response.data?.listPosts?.items) {
-        const cleanPosts = await Promise.all(
-          response.data.listPosts.items
-            .filter((post) => post !== null)
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .map(async (post) => {
-              const commentsResponse = await client.graphql({
-                query: postCommentsByPostID,
-                variables: { 
-                  postID: post.id, 
-                  limit: 100,
-                },
-                authMode: "userPool",
-              });
-
-              // Get comments and sort them manually after fetching
-              const comments = commentsResponse.data.postCommentsByPostID?.items || [];
-              const sortedComments = comments.sort(
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-              );
-
-              return {
-                ...post,
-                userEmail: post.userEmail || post.owner || "Anonymous",
-                likes: post.likes || [],
-                dislikes: post.dislikes || [],
-                comments: sortedComments,
-              };
-            })
-        );
-        setPosts(cleanPosts);
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      console.error("Error details:", error.errors?.[0]);
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
+  const fetchPosts = () => {
+    // Just refresh the current posts
+    setLoading(true);
+    setTimeout(() => setLoading(false), 500);
   };
 
   // Toggle comments visibility
@@ -146,215 +103,84 @@ const Dashboard = () => {
 
   // Check if user owns the post
   const isOwner = (post) => {
-    return post.userEmail === userEmail || post.owner === userEmail;
+    return post.userEmail === userEmail;
   };
-
-  // ---------------------------
-  // 🔔 Subscriptions for Real-time
-  // ---------------------------
-  useEffect(() => {
-    // When new comment is created
-    const subNewComment = client
-      .graphql({ query: onCreatePostComment })
-      .subscribe({
-        next: ({ data }) => {
-          const newComment = data.onCreatePostComment;
-          setPosts((prevPosts) =>
-            prevPosts.map((p) => {
-              // Only add the comment if it doesn't already exist in the array
-              if (p.id === newComment.postID) {
-                // Check if we already have this comment (or one very similar) 
-                const commentExists = p.comments.some(c => 
-                  // Check if IDs match or content and timestamp are very close
-                  c.id === newComment.id || 
-                  (c.content === newComment.content && 
-                   c.userEmail === newComment.userEmail &&
-                   Math.abs(new Date(c.createdAt) - new Date(newComment.createdAt)) < 5000) // Within 5 seconds
-                );
-                
-                // Only add if it doesn't exist
-                return commentExists 
-                  ? p 
-                  : { ...p, comments: [newComment, ...p.comments] };
-              }
-              return p;
-            })
-          );
-        },
-      });
-
-    // When new post is created
-    const subNewPost = client
-      .graphql({ query: onCreatePost })
-      .subscribe({
-        next: ({ data }) => {
-          const newPost = data.onCreatePost;
-          setPosts((prev) => [
-            {
-              ...newPost,
-              likes: [],
-              dislikes: [],
-              comments: [],
-            },
-            ...prev,
-          ]);
-        },
-      });
-
-    // When post is updated (likes/dislikes)
-    const subUpdatePost = client
-      .graphql({ query: onUpdatePost })
-      .subscribe({
-        next: ({ data }) => {
-          const updatedPost = data.onUpdatePost;
-          setPosts((prev) =>
-            prev.map((p) => {
-              if (p.id === updatedPost.id) {
-                // Preserve the existing comments when receiving updates
-                return { 
-                  ...updatedPost, 
-                  comments: p.comments || [] 
-                };
-              }
-              return p;
-            })
-          );
-        },
-      });
-
-    return () => {
-      subNewComment.unsubscribe();
-      subNewPost.unsubscribe();
-      subUpdatePost.unsubscribe();
-    };
-  }, []);
 
   // ---------------------------
   // Likes / Dislikes / Comments
   // ---------------------------
-  const handleLike = async (post) => {
-    try {
-      const likes = post.likes || [];
-      const dislikes = post.dislikes || [];
-      const hasLiked = likes.includes(userEmail);
+  const handleLike = (post) => {
+    const likes = post.likes || [];
+    const dislikes = post.dislikes || [];
+    const hasLiked = likes.includes(userEmail);
 
-      const newLikes = hasLiked
-        ? likes.filter((email) => email !== userEmail)
-        : [...likes, userEmail];
-      const newDislikes = dislikes.filter((email) => email !== userEmail);
+    const newLikes = hasLiked
+      ? likes.filter((email) => email !== userEmail)
+      : [...likes, userEmail];
+    const newDislikes = dislikes.filter((email) => email !== userEmail);
 
-      // Update UI immediately - preserve all existing post properties
-      setPosts(prevPosts => 
-        prevPosts.map(p => 
-          p.id === post.id 
-            ? { 
-                ...p, 
-                likes: newLikes, 
-                dislikes: newDislikes,
-                // Keep existing comments as they are
-                comments: p.comments
-              } 
-            : p
-        )
-      );
-
-      // Then send to server - only send what needs to change
-      await client.graphql({
-        query: updatePost,
-        variables: { 
-          input: { 
-            id: post.id, 
-            likes: newLikes, 
-            dislikes: newDislikes 
-          }
-        },
-        authMode: "userPool",
-      });
-    } catch (error) {
-      console.error("Error updating like:", error);
-      // Revert UI change on error
-      fetchPosts();
-    }
+    // Update UI immediately
+    setPosts(prevPosts => 
+      prevPosts.map(p => 
+        p.id === post.id 
+          ? { 
+              ...p, 
+              likes: newLikes, 
+              dislikes: newDislikes,
+              comments: p.comments
+            } 
+          : p
+      )
+    );
   };
 
-  const handleDislike = async (post) => {
-    try {
-      const likes = post.likes || [];
-      const dislikes = post.dislikes || [];
-      const hasDisliked = dislikes.includes(userEmail);
+  const handleDislike = (post) => {
+    const likes = post.likes || [];
+    const dislikes = post.dislikes || [];
+    const hasDisliked = dislikes.includes(userEmail);
 
-      const newDislikes = hasDisliked
-        ? dislikes.filter((email) => email !== userEmail)
-        : [...dislikes, userEmail];
-      const newLikes = likes.filter((email) => email !== userEmail);
+    const newDislikes = hasDisliked
+      ? dislikes.filter((email) => email !== userEmail)
+      : [...dislikes, userEmail];
+    const newLikes = likes.filter((email) => email !== userEmail);
 
-      // Update UI immediately - preserve all existing post properties
-      setPosts(prevPosts => 
-        prevPosts.map(p => 
-          p.id === post.id 
-            ? { 
-                ...p, 
-                likes: newLikes, 
-                dislikes: newDislikes,
-                // Keep existing comments as they are
-                comments: p.comments
-              } 
-            : p
-        )
-      );
-
-      // Then send to server
-      await client.graphql({
-        query: updatePost,
-        variables: { input: { id: post.id, likes: newLikes, dislikes: newDislikes } },
-        authMode: "userPool",
-      });
-    } catch (error) {
-      console.error("Error updating dislike:", error);
-      // Revert UI change on error
-      fetchPosts();
-    }
+    // Update UI immediately
+    setPosts(prevPosts => 
+      prevPosts.map(p => 
+        p.id === post.id 
+          ? { 
+              ...p, 
+              likes: newLikes, 
+              dislikes: newDislikes,
+              comments: p.comments
+            } 
+          : p
+      )
+    );
   };
 
-  const handleComment = async (postId) => {
+  const handleComment = (postId) => {
     if (!commentText[postId]?.trim()) return;
-    try {
-      const newComment = {
-        id: Date.now().toString(), // Temporary ID for optimistic UI
-        postID: postId,
-        content: commentText[postId].trim(),
-        userEmail,
-        createdAt: new Date().toISOString(),
-      };
+    
+    const newComment = {
+      id: Date.now().toString(),
+      postID: postId,
+      content: commentText[postId].trim(),
+      userEmail,
+      createdAt: new Date().toISOString(),
+    };
 
-      // Update UI immediately
-      setPosts(prevPosts =>
-        prevPosts.map(p =>
-          p.id === postId
-            ? { ...p, comments: [newComment, ...p.comments] }
-            : p
-        )
-      );
-      
-      // Clear comment input
-      setCommentText({ ...commentText, [postId]: "" });
-
-      // Then send to server
-      await client.graphql({
-        query: createPostComment,
-        variables: { input: { 
-          postID: postId,
-          content: newComment.content,
-          userEmail,
-          createdAt: newComment.createdAt
-        }},
-        authMode: "userPool",
-      });
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      // Revert UI change on error
-      fetchPosts();
-    }
+    // Update UI immediately
+    setPosts(prevPosts =>
+      prevPosts.map(p =>
+        p.id === postId
+          ? { ...p, comments: [newComment, ...p.comments] }
+          : p
+      )
+    );
+    
+    // Clear comment input
+    setCommentText({ ...commentText, [postId]: "" });
   };
 
   if (loading) {

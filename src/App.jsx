@@ -3,39 +3,21 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-route
 import CreatePost from "./components/CreatePost/CreatePost";
 import Dashboard from "./components/Dashboard/Dashboard";
 import UserProfile from "./components/UserProfile/UserProfile";
-import { Amplify } from 'aws-amplify';
-import { generateClient } from 'aws-amplify/api';
-import { withAuthenticator, Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
-import awsconfig from "./aws-exports";
-import "@aws-amplify/ui-react/styles.css";
 import Login from "./components/Login/Login";
-import { createPost } from "./graphql/mutations";
-
-Amplify.configure({
-  ...awsconfig,
-  API: {
-    GraphQL: {
-      endpoint: awsconfig.aws_appsync_graphqlEndpoint,
-      region: awsconfig.aws_appsync_region,
-      defaultAuthMode: 'userPool'
-    }
-  }
-});
-
-const client = generateClient();
 
 function App() {
   const [posts, setPosts] = useState([]);
-  const { user } = useAuthenticator((context) => [context.user]);
-  const currentUser = user?.signInDetails?.loginId || user?.username || "unknown@example.com";
+  const [currentUser, setCurrentUser] = useState("unknown@example.com");
 
   const addPost = async (newPost) => {
     try {
-      const response = await client.graphql({
-        query: createPost,
-        variables: { input: newPost }
-      });
-      setPosts((prev) => [response.data.createPost, ...prev]);
+      // Simple local post addition without API
+      const postWithId = {
+        ...newPost,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString()
+      };
+      setPosts((prev) => [postWithId, ...prev]);
     } catch (error) {
       console.error("Error creating post:", error);
     }
@@ -94,57 +76,32 @@ function App() {
   };
 
   return (
-    <Authenticator.Provider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <Dashboard
-                  posts={posts}
-                  addComment={addComment}
-                  toggleLike={toggleLike}
-                  toggleDislike={toggleDislike}
-                  currentUser={currentUser}
-                />
-              </RequireAuth>
-            }
-          />
-          <Route 
-            path="/create-post" 
-            element={
-              <RequireAuth>
-                <CreatePost addPost={addPost} />
-              </RequireAuth>
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <RequireAuth>
-                <UserProfile />
-              </RequireAuth>
-            } 
-          />
-        </Routes>
-      </Router>
-    </Authenticator.Provider>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <Dashboard
+              posts={posts}
+              addComment={addComment}
+              toggleLike={toggleLike}
+              toggleDislike={toggleDislike}
+              currentUser={currentUser}
+            />
+          }
+        />
+        <Route 
+          path="/create-post" 
+          element={<CreatePost addPost={addPost} />} 
+        />
+        <Route 
+          path="/profile" 
+          element={<UserProfile />} 
+        />
+      </Routes>
+    </Router>
   );
 }
 
-function RequireAuth({ children }) {
-  const { authStatus } = useAuthenticator(context => [context.authStatus]);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (authStatus !== 'authenticated') {
-      navigate('/login');
-    }
-  }, [authStatus, navigate]);
-
-  return authStatus === 'authenticated' ? children : null;
-}
-
-export default withAuthenticator(App);
+export default App;

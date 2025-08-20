@@ -23,24 +23,19 @@ import {
   Progress,
   Spinner,
 } from "@chakra-ui/react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
 import Navbar from "../Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
-import { generateClient } from "aws-amplify/api";
-import { createPost } from "../../graphql/mutations";
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const client = generateClient();
   const toast = useToast();
-  const { user } = useAuthenticator((context) => [context.user]);
 
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
   const MAX_CONTENT_LENGTH = 500;
-  const userEmail = user?.signInDetails?.loginId || user?.attributes?.email;
+  const userEmail = "currentuser@example.com"; // Mock current user
 
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const cardBg = useColorModeValue("white", "gray.800");
@@ -73,6 +68,7 @@ const CreatePost = () => {
     setIsSubmitting(true);
 
     try {
+      // Simulate post creation without API
       const postData = {
         content: content.trim(),
         userEmail: userEmail,
@@ -81,11 +77,8 @@ const CreatePost = () => {
         dislikes: [],
       };
 
-      const response = await client.graphql({
-        query: createPost,
-        variables: { input: postData },
-        authMode: "userPool",
-      });
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
         title: "Post created successfully!",
@@ -102,7 +95,7 @@ const CreatePost = () => {
         navigate("/");
       }, 1000);
     } catch (error) {
-      console.error("Full error:", error);
+      console.error("Error creating post:", error);
       toast({
         title: "Error creating post",
         description: "Please try again later.",
