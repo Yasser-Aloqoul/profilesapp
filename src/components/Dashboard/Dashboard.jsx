@@ -183,7 +183,68 @@ const Dashboard = () => {
 
   // Get post owner name
   const getPostOwnerName = (post) => {
-    return post.author || post.name || post.authorEmail || 'User';
+    console.log('getPostOwnerName called with post:', {
+      author: post.author,
+      name: post.name,
+      authorEmail: post.authorEmail,
+      email: post.email
+    });
+    
+    // Try to get a clean name from various fields
+    if (post.author && post.author !== post.authorEmail && !post.author.includes('-') && post.author.length < 30) {
+      console.log('Using post.author:', post.author);
+      return post.author;
+    }
+    if (post.name && post.name !== post.authorEmail && !post.name.includes('-') && post.name.length < 30) {
+      console.log('Using post.name:', post.name);
+      return post.name;
+    }
+    if (post.authorEmail) {
+      // Extract name from email (part before @)
+      const emailName = post.authorEmail.split('@')[0];
+      console.log('Email name extracted:', emailName);
+      // If it's not a UUID-like string, use it
+      if (!emailName.includes('-') && emailName.length < 20) {
+        console.log('Using email name:', emailName);
+        return emailName;
+      }
+    }
+    // Fallback to a generic name
+    console.log('Using fallback: User');
+    return 'User';
+  };
+
+  // Get comment author name
+  const getCommentAuthorName = (comment) => {
+    console.log('getCommentAuthorName called with comment:', {
+      author: comment.author,
+      name: comment.name,
+      authorEmail: comment.authorEmail,
+      email: comment.email
+    });
+    
+    // Try to get a clean name from various fields
+    if (comment.author && comment.author !== comment.authorEmail && !comment.author.includes('-') && comment.author.length < 30) {
+      console.log('Using comment.author:', comment.author);
+      return comment.author;
+    }
+    if (comment.name && comment.name !== comment.authorEmail && !comment.name.includes('-') && comment.name.length < 30) {
+      console.log('Using comment.name:', comment.name);
+      return comment.name;
+    }
+    if (comment.authorEmail) {
+      // Extract name from email (part before @)
+      const emailName = comment.authorEmail.split('@')[0];
+      console.log('Comment email name extracted:', emailName);
+      // If it's not a UUID-like string, use it
+      if (!emailName.includes('-') && emailName.length < 20) {
+        console.log('Using comment email name:', emailName);
+        return emailName;
+      }
+    }
+    // Fallback to a generic name
+    console.log('Using fallback: Anonymous');
+    return 'Anonymous';
   };
 
   // Helper function to check if user has liked/disliked
@@ -425,27 +486,40 @@ const Dashboard = () => {
   };
 
   const handleComment = async (postId) => {
-    if (!commentText[postId]?.trim()) return;
+    if (!commentText[postId]?.trim()) {
+      toast({
+        title: "Comment is empty",
+        description: "Please write something before submitting",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
     
     try {
       const idToken = auth.user?.id_token;
       console.log('Handling comment for post ID:', postId);
+      console.log('Comment content:', commentText[postId]);
+      console.log('User email:', userEmail);
+      console.log('User name:', userName);
       
       if (!postId) {
         throw new Error('Post ID not found');
       }
       
-      const commentContent = commentText[postId].trim(); // Store before clearing
+      const commentContent = commentText[postId].trim();
       
       const newComment = {
-        _id: Date.now().toString(), // Temporary ID
+        _id: Date.now().toString(), // Temporary ID for optimistic update
         authorEmail: userEmail,
         author: userName,
         content: commentContent,
+        comment: commentContent, // Fallback field name
         createdAt: new Date().toISOString()
       };
 
-      // Update UI immediately for better UX
+      // Update UI immediately for better UX (optimistic update)
       setPosts(prevPosts =>
         prevPosts.map(p => {
           if (getPostId(p) === postId) {
@@ -462,33 +536,78 @@ const Dashboard = () => {
       setCommentText({ ...commentText, [postId]: "" });
 
       try {
-        await PostService.addComment(postId, {
+        console.log('Sending comment to API...');
+        const result = await PostService.addComment(postId, {
           email: userEmail,
           name: userName,
-          comment: commentContent
+          comment: commentContent,
+          content: commentContent, // Try both field names
         }, idToken);
         
+        console.log('Comment API success:', result);
+        
         toast({
-          title: "Comment added!",
+          title: "💬 Comment posted!",
+          description: "Your comment was successfully added",
           status: "success",
           duration: 2000,
           isClosable: true,
         });
+        
+        // Refresh posts to get updated data from server
+        setTimeout(() => {
+          fetchPosts();
+        }, 1000);
+        
       } catch (apiError) {
-        console.log('Comment API failed, keeping local update:', apiError);
-        // Keep the optimistic update even if API fails
-        toast({
-          title: "Comment added locally",
-          description: "Your comment was added but may not sync to server",
-          status: "warning",
-          duration: 3000,
-          isClosable: true,
-        });
+        console.error('Comment API failed:', apiError);
+        
+        // Check if it's a 404 error or endpoint doesn't exist
+        if (apiError.message?.includes('404') || 
+            apiError.message?.includes('Failed to add comment') ||
+            apiError.message?.includes('no working endpoint found')) {
+          
+          console.log('Comment API endpoint does not exist - keeping local update');
+          toast({
+            title: "💬 Comment added locally",
+            description: "Comments are not synced to server yet, but your comment is visible",
+            status: "info",
+            duration: 4000,
+            isClosable: true,
+          });
+          
+          // Keep the optimistic update since API doesn't exist
+          return;
+        } else {
+          // For other API errors, revert the optimistic update
+          setPosts(prevPosts =>
+            prevPosts.map(p => {
+              if (getPostId(p) === postId) {
+                return {
+                  ...p,
+                  comments: (p.comments || []).filter(c => c._id !== newComment._id)
+                };
+              }
+              return p;
+            })
+          );
+          
+          // Restore the comment text
+          setCommentText({ ...commentText, [postId]: commentContent });
+          
+          toast({
+            title: "❌ Failed to post comment",
+            description: "There was an error saving your comment. Please try again.",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
       }
     } catch (error) {
       console.error('Error adding comment:', error);
       toast({
-        title: "Error",
+        title: "❌ Error",
         description: error.message || "Failed to add comment",
         status: "error",
         duration: 3000,
@@ -624,15 +743,17 @@ const Dashboard = () => {
                           color="white"
                           fontWeight="bold"
                         />
-                        <VStack spacing={0} align="start">
+                        <VStack spacing={1} align="start">
                           <Text fontWeight="bold" color={headingColor} fontSize="lg">
                             {getPostOwnerName(post)}
                           </Text>
+                          <HStack spacing={2}>
+                            <Text fontSize="sm" color="blue.600" fontWeight="medium">
+                              📧 {getPostOwnerEmail(post)}
+                            </Text>
+                          </HStack>
                           <Text fontSize="sm" color={mutedTextColor}>
-                            {getPostOwnerEmail(post)}
-                          </Text>
-                          <Text fontSize="md" color={mutedTextColor}>
-                            {getTimeAgo(post.createdAt)}
+                            🕒 {getTimeAgo(post.createdAt)}
                           </Text>
                         </VStack>
                       </HStack>
@@ -730,6 +851,14 @@ const Dashboard = () => {
                             onChange={(e) =>
                               setCommentText({ ...commentText, [currentPostId || 'unknown']: e.target.value })
                             }
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                if (currentPostId && commentText[currentPostId]?.trim()) {
+                                  handleComment(currentPostId);
+                                }
+                              }
+                            }}
                             borderRadius="full"
                             bg={inputBg}
                             border="1px"
@@ -738,22 +867,31 @@ const Dashboard = () => {
                             size="lg"
                             py={3}
                           />
-                          <InputRightElement>
-                            <IconButton
+                          <InputRightElement width="4.5rem">
+                            <Button
                               onClick={() => {
                                 if (currentPostId) {
                                   handleComment(currentPostId);
                                 } else {
                                   console.error('Cannot add comment: Post ID is undefined');
+                                  toast({
+                                    title: "Error",
+                                    description: "Post ID not found",
+                                    status: "error",
+                                    duration: 2000,
+                                    isClosable: true,
+                                  });
                                 }
                               }}
-                              icon={<Text as="span">📤</Text>}
                               size="sm"
                               colorScheme="blue"
                               variant="ghost"
                               borderRadius="full"
                               isDisabled={!currentPostId || !commentText[currentPostId]?.trim()}
-                            />
+                              _hover={{ bg: "blue.100" }}
+                            >
+                              📤 Send
+                            </Button>
                           </InputRightElement>
                         </InputGroup>
                       </HStack>
@@ -775,14 +913,14 @@ const Dashboard = () => {
                               <HStack spacing={3} align="start">
                                 <Avatar
                                   size="sm"
-                                  name={comment.author || comment.authorEmail}
+                                  name={getCommentAuthorName(comment)}
                                   bg="purple.500"
                                   color="white"
                                 />
                                 <VStack spacing={1} align="start" flex={1}>
                                   <HStack spacing={2}>
                                     <Text fontWeight="bold" fontSize="md" color={headingColor}>
-                                      {comment.author || comment.authorEmail}
+                                      {getCommentAuthorName(comment)}
                                     </Text>
                                     <Text fontSize="sm" color={mutedTextColor}>
                                       {getTimeAgo(comment.createdAt)}

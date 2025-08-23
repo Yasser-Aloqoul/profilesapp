@@ -88,13 +88,36 @@ const PostService = {
   },
   async addComment(postId, data, idToken) {
     const headers = { ...getAuthHeader(idToken), "Content-Type": "application/json" };
-    const res = await fetch(`${API_BASE_URL}/posts/${postId}/comment`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error("Failed to add comment");
-    return res.json();
+    
+    // Try multiple possible endpoints for adding comments
+    const possibleEndpoints = [
+      { url: `${API_BASE_URL}/posts/${postId}/comment`, method: "POST" },
+      { url: `${API_BASE_URL}/posts/${postId}/comments`, method: "POST" },
+      { url: `${API_BASE_URL}/posts/${postId}/addComment`, method: "POST" },
+    ];
+    
+    for (const endpoint of possibleEndpoints) {
+      try {
+        console.log(`Trying comment endpoint: ${endpoint.method} ${endpoint.url}`);
+        const res = await fetch(endpoint.url, {
+          method: endpoint.method,
+          headers,
+          body: JSON.stringify(data),
+        });
+        
+        if (res.ok) {
+          console.log(`Comment endpoint success: ${endpoint.method} ${endpoint.url}`);
+          return res.json();
+        }
+        
+        console.log(`Comment endpoint ${endpoint.method} ${endpoint.url} failed with status:`, res.status);
+      } catch (error) {
+        console.log(`Comment endpoint ${endpoint.method} ${endpoint.url} failed with error:`, error.message);
+      }
+    }
+    
+    // If all endpoints fail, throw error
+    throw new Error("Failed to add comment - no working endpoint found. Comment endpoints may not be implemented on the backend.");
   },
   async updatePost(postId, data, idToken) {
     const headers = { ...getAuthHeader(idToken), "Content-Type": "application/json" };
