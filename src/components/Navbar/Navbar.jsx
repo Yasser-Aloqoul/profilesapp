@@ -19,16 +19,20 @@ import {
   Spacer
 } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "react-oidc-context";
+import { createLogoutUrl } from "../../config/cognito.js";
 
 const Navbar = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { colorMode, toggleColorMode } = useColorMode();
-  const userEmail = "currentuser@example.com"; // Mock current user
+  const userEmail = auth.user?.profile?.email || "User";
   
   const handleSignOut = () => {
-    // Simple redirect to login for now
-    navigate("/login");
+    // Remove user from local session and redirect to Cognito logout
+    auth.removeUser();
+    window.location.href = createLogoutUrl();
   };
   
   // Color scheme

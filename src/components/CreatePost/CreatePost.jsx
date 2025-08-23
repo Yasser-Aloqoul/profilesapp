@@ -23,10 +23,14 @@ import {
   Progress,
   Spinner,
 } from "@chakra-ui/react";
+import { useAuth } from "react-oidc-context";
 import Navbar from "../Navbar/Navbar";
+
 import { useNavigate } from "react-router-dom";
+import PostService from "../../services/PostService";
 
 const CreatePost = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -35,7 +39,8 @@ const CreatePost = () => {
   const [errors, setErrors] = useState({});
 
   const MAX_CONTENT_LENGTH = 500;
-  const userEmail = "currentuser@example.com"; // Mock current user
+  const userEmail = auth.user?.profile?.email || "User";
+  const userName = auth.user?.profile?.name || auth.user?.profile?.email || "User";
 
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const cardBg = useColorModeValue("white", "gray.800");
@@ -68,17 +73,14 @@ const CreatePost = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate post creation without API
       const postData = {
-        content: content.trim(),
-        userEmail: userEmail,
-        createdAt: new Date().toISOString(),
-        likes: [],
-        dislikes: [],
+        email: userEmail,
+        name: userName,
+        content: content.trim()  // Changed from postCreate to content
       };
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const idToken = auth.user?.id_token;
+      await PostService.createPost(postData, idToken);
 
       toast({
         title: "Post created successfully!",
@@ -98,7 +100,7 @@ const CreatePost = () => {
       console.error("Error creating post:", error);
       toast({
         title: "Error creating post",
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -143,14 +145,14 @@ const CreatePost = () => {
               <HStack spacing={4}>
                 <Avatar
                   size="lg"
-                  name={userEmail}
+                  name={userName}
                   bg="blue.500"
                   color="white"
                   fontWeight="bold"
                 />
                 <VStack spacing={0} align="start">
                   <Text fontWeight="bold" fontSize="lg" color={useColorModeValue("gray.700", "gray.200")}>
-                    {userEmail}
+                    {userName}
                   </Text>
                   <Text fontSize="sm" color={textColor}>
                     Creating a post
