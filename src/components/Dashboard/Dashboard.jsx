@@ -659,10 +659,19 @@ const Dashboard = () => {
     );
   }
 
+  // Handle logout and redirect to auth page
+  const handleLogout = () => {
+    auth.signoutRedirect();
+  };
+
   return (
     <Box minHeight="100vh" bg={bgColor}>
       <Navbar />
-      
+      <Flex justifyContent="flex-end" px={8} pt={4}>
+        <Button colorScheme="red" onClick={handleLogout} size="sm">
+          Logout
+        </Button>
+      </Flex>
       {/* Header */}
       <Container maxW="1200px" py={8}>
         <VStack spacing={8} align="stretch">
